@@ -76,12 +76,13 @@ public class GLVideo extends PImage {
       String jar = GLVideo.class.getProtectionDomain().getCodeSource().getLocation().getPath();
       String nativeLib = jar.substring(0, jar.lastIndexOf(File.separatorChar));
       // set a custom plugin path and prevent globally installed libraries from being loaded
-      //gstreamer_setEnvVar("GST_PLUGIN_SYSTEM_PATH_1_0", "");
+      gstreamer_setEnvVar("GST_PLUGIN_SYSTEM_PATH_1_0", "");
       // the second plugin path is necessary since the directory structure for exported applications
       // doesn't contain a linux-armv6hf directory
-      //gstreamer_setEnvVar("GST_PLUGIN_PATH_1_0", nativeLib + "/linux-armv6hf/gstreamer-1.0/:" + nativeLib + "/gstreamer-1.0/");
+      gstreamer_setEnvVar("GST_PLUGIN_PATH_1_0", nativeLib + "/macosx/gstreamer-1.0/:" + nativeLib + "/gstreamer-1.0/");
       // keep a local registry
-      //gstreamer_setEnvVar("GST_REGISTRY_1_0", nativeLib + "/linux-armv6hf/gstreamer-1.0/registry");
+      //gstreamer_setEnvVar("GST_REGISTRY_1_0", nativeLib + "/macosx/gstreamer-1.0/registry");
+      gstreamer_setEnvVar("GST_REGISTRY_UPDATE", "no");
       // we could also set GST_GL_API & GST_GL_PLATFORM here
 
       if (gstreamer_init() == false) {
