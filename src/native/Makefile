@@ -29,12 +29,14 @@ ifeq ($(PLATFORM),Linux)
 endif
 ifeq ($(PLATFORM),Darwin)
 	# this is currently 64-bit only
-	# download and install latest gstreamer-1.0-devel package for x86_64 from
+	# download and install latest gstreamer-1.0-devel package, as well as as the
+	# regular gstreamer-1.0 package, both for for x86_64, from
 	# https://gstreamer.freedesktop.org/data/pkg/osx/1.8.1/
 	LDFLAGS += -L/Library/Frameworks/GStreamer.framework/Versions/1.0/lib
 	LDFLAGS += -lgstgl-1.0 -lgstreamer-1.0 -lgstapp-1.0 -lglib-2.0 -lgobject-2.0
-	# XXX: set rpath
+	LDFLAGS += -framework GStreamer
 	TARGET_DIR = macosx
+	# XXX: set rpath
 	# XXX: extension needs to be .jnilib instead of .so
 endif
 
