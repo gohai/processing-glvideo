@@ -12,6 +12,11 @@ ifeq ($(PLATFORM),Linux)
 	CFLAGS += -I/opt/vc/include/interface/vcos/pthreads
 	CFLAGS += $(shell pkg-config gstreamer-1.0 --cflags-only-I)
 endif
+ifeq ($(PLATFORM),Darwin)
+	# this is currently 64-bit only
+	CFLAGS += -I/Library/Frameworks/GStreamer.framework/Versions/1.0/Headers
+	CFLAGS += -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers
+endif
 
 LDFLAGS := -shared
 ifeq ($(PLATFORM),Linux)
@@ -20,12 +25,21 @@ ifeq ($(PLATFORM),Linux)
 	LDFLAGS += $(shell pkg-config gstreamer-gl-1.0 --libs)
 	LDFLAGS += -L../../library/linux-armv6hf
 	LDFLAGS += -Wl,-R,'$$ORIGIN'
+	TARGET_DIR = linux-armv6hf
+endif
+ifeq ($(PLATFORM),Darwin)
+	# this is currently 64-bit only
+	LDFLAGS += -L/Library/Frameworks/GStreamer.framework/Versions/1.0/lib
+	LDFLAGS += -lgstgl-1.0 -lgstreamer-1.0 -lgstapp-1.0 -lglib-2.0 -lgobject-2.0
+	# XXX: set rpath
+	TARGET_DIR = macosx
+	# XXX: extension needs to be .jnilib instead of .so
 endif
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
-	mkdir -p ../../library/linux-armv6hf
-	cp $(TARGET) ../../library/linux-armv6hf
+	mkdir -p ../../library/$(TARGET_DIR)
+	cp $(TARGET) ../../library/$(TARGET_DIR)
 
 iface.h:
 	javah -classpath .. -o iface.h gohai.glvideo.GLVideo

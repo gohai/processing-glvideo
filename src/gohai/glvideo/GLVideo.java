@@ -64,12 +64,12 @@ public class GLVideo extends PImage {
     this.parent = parent;
     this.flags = flags;
 
-    if (PApplet.platform != LINUX ||
-        !"arm".equals(System.getProperty("os.arch"))) {
-      System.err.println("The GL Video library is not supported on this platform. Instead of the actual video, your sketch will only receive stand-in frames that allow you to test the remainder of its functionality.");
-      simulate = true;
-      return;
-    } else if (!loaded) {
+    //if (PApplet.platform != LINUX ||
+    //    !"arm".equals(System.getProperty("os.arch"))) {
+    //  System.err.println("The GL Video library is not supported on this platform. Instead of the actual video, your sketch will only receive stand-in frames that allow you to test the remainder of its functionality.");
+    //  simulate = true;
+    //  return;
+    //} else if (!loaded) {
       System.loadLibrary("glvideo");
       loaded = true;
 
@@ -87,7 +87,7 @@ public class GLVideo extends PImage {
       if (gstreamer_init() == false) {
         error = true;
       }
-    }
+    //}
 
     if (error) {
       throw new RuntimeException("Could not load GStreamer");
