@@ -274,14 +274,14 @@ init_playbin_player (GLVIDEO_STATE_T * state, const gchar * uri)
   gst_object_unref (pad);
 
   // this is for v4l2 devices that output YUV
-  if (strstr (uri, "v4l2://")) {
+  //if (strstr (uri, "v4l2://")) {
     GstElement *glcolorconvert = gst_element_factory_make ("glcolorconvert", NULL);
     gst_bin_add (GST_BIN (vbin), glcolorconvert);
     gst_element_link (glfilter, glcolorconvert);
     gst_element_link (glcolorconvert, capsfilter);
-  } else {
-    gst_element_link (glfilter, capsfilter);
-  }
+  //} else {
+  //  gst_element_link (glfilter, capsfilter);
+  //}
 
   gst_element_link (capsfilter, vsink);
 
