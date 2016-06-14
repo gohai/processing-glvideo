@@ -84,9 +84,9 @@ public class GLVideo extends PImage {
       gstreamer_setEnvVar("GST_REGISTRY_1_0", nativeLib + "/macosx/gstreamer-1.0/registry");
       // XXX: add this for linux as well
       gstreamer_setEnvVar("GST_PLUGIN_SCANNER_1_0", nativeLib + "/macosx/gst-plugin-scanner");
-      // XXX: remove
-      gstreamer_setEnvVar("GST_DEBUG_NO_COLOR", "1");
-      gstreamer_setEnvVar("GST_DEBUG", "4");
+      // XXX: DEBUG
+      //gstreamer_setEnvVar("GST_DEBUG_NO_COLOR", "1");
+      //gstreamer_setEnvVar("GST_DEBUG", "4");
 
       // we could also set GST_GL_API & GST_GL_PLATFORM here
 
