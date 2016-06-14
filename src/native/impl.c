@@ -39,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <gst/gst.h>
 #include <gst/gl/gl.h>
 #ifdef __APPLE__
+#include <gst/gl/cocoa/gstglcontext_cocoa.h>
 #elif
 #include <gst/gl/egl/gstgldisplay_egl.h>
 #endif
@@ -69,6 +70,7 @@ typedef enum
 static GThread *thread;
 static GMainLoop *mainloop;
 #ifdef __APPLE__
+static guintptr context;
 #elif
 static EGLDisplay display;
 static EGLSurface surface;
@@ -339,10 +341,12 @@ JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1init
 
     // save the current EGL context
 #ifdef __APPLE__
+    context = gst_gl_context_cocoa_get_current_context();
 #elif
     display = eglGetCurrentDisplay ();
     surface = eglGetCurrentSurface (0);
     context = eglGetCurrentContext ();
+#endif
     if (!context) {
       g_printerr ("GLVideo requires the P2D or P3D renderer.\n");
       g_error_free (error);
@@ -350,7 +354,6 @@ JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1init
     }
     //fprintf (stderr, "GLVideo: display %p, surface %p, context %p at init\n",
     //  (void *) display, (void *) surface, (void *) context);
-#endif
 
     // start GLib main loop in a separate thread
     thread = g_thread_new ("glvideo-mainloop", glvideo_mainloop, NULL);
@@ -368,9 +371,13 @@ JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1open
     state->flags = flags;
     state->rate = 1.0f;
 
+    // setup context sharing
 #ifdef __APPLE__
+    state->gst_display = gst_gl_display_new ();
+    state->gl_context =
+      gst_gl_context_new_wrapped (GST_GL_DISPLAY (state->gst_display),
+      context, GST_GL_PLATFORM_CGL, gst_gl_context_get_current_gl_api (GST_GL_PLATFORM_CGL, NULL, NULL));
 #elif
-    // setup EGL context sharing
     state->gst_display = gst_gl_display_egl_new_with_egl_display (display);
     state->gl_context =
       gst_gl_context_new_wrapped (GST_GL_DISPLAY (state->gst_display),
