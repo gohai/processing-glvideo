@@ -57,9 +57,11 @@ install_macosx_libraries:
 	# https://gstreamer.freedesktop.org/data/pkg/osx/
 	mkdir -p ../../library/macosx
 	cp /Library/Frameworks/GStreamer.framework/Libraries/*.dylib ../../library/macosx
-	mkdir -p ../../library/macosx/gstreamer-1.0
-	cp /Library/Frameworks/GStreamer.framework/Libraries/gstreamer-1.0/*.so ../../library/macosx/gstreamer-1.0
 	# pip install osxrelocator
-	cd ../../library/macosx && osxrelocator . "/Library/Frameworks/GStreamer.framework/Versions/1.0/lib" "@loader_path/" -r && cd ../../src/native
+	cd ../../library/macosx && osxrelocator . "/Library/Frameworks/GStreamer.framework/Versions/1.0/lib" "@loader_path/" && cd ../../src/native
 	# seems to have a bug, so this is needed to set the desired install name
 	cd ../../library/macosx && find * -name "*.dylib" -exec install_name_tool -id @loader_path/{} {} \; && cd ../../src/native
+	mkdir -p ../../library/macosx/gstreamer-1.0
+	cp /Library/Frameworks/GStreamer.framework/Libraries/gstreamer-1.0/*.so ../../library/macosx/gstreamer-1.0
+	cd ../../library/macosx/gstreamer-1.0 && osxrelocator . "/Library/Frameworks/GStreamer.framework/Versions/1.0/lib" "@loader_path/../" && cd ../../../src/native
+	# install name is not relevant for those
