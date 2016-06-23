@@ -46,7 +46,7 @@ $(TARGET): $(OBJS)
 	cp $(TARGET) ../../library/$(TARGET_DIR)/$(TARGET_FILE)
 
 iface.h:
-	javah -classpath .. -o iface.h gohai.glvideo.GLVideo
+	javah -classpath .. -o iface.h gohai.glvideo.GLNative
 
 clean:
 	rm -f $(TARGET) $(OBJS)

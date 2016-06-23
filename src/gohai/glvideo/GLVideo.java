@@ -73,24 +73,24 @@ public class GLVideo extends PImage {
       System.loadLibrary("glvideo");
       loaded = true;
 
-      String jar = GLVideo.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+      String jar = GLNative.class.getProtectionDomain().getCodeSource().getLocation().getPath();
       String nativeLib = jar.substring(0, jar.lastIndexOf(File.separatorChar));
       // set a custom plugin path and prevent globally installed libraries from being loaded
-      gstreamer_setEnvVar("GST_PLUGIN_SYSTEM_PATH_1_0", "");
+      GLNative.gstreamer_setEnvVar("GST_PLUGIN_SYSTEM_PATH_1_0", "");
       // the second plugin path is necessary since the directory structure for exported applications
       // doesn't contain a linux-armv6hf directory
-      gstreamer_setEnvVar("GST_PLUGIN_PATH_1_0", nativeLib + "/macosx/gstreamer-1.0/:" + nativeLib + "/gstreamer-1.0/");
+      GLNative.gstreamer_setEnvVar("GST_PLUGIN_PATH_1_0", nativeLib + "/macosx/gstreamer-1.0/:" + nativeLib + "/gstreamer-1.0/");
       // keep a local registry
-      gstreamer_setEnvVar("GST_REGISTRY_1_0", nativeLib + "/macosx/gstreamer-1.0/registry");
+      GLNative.gstreamer_setEnvVar("GST_REGISTRY_1_0", nativeLib + "/macosx/gstreamer-1.0/registry");
       // XXX: add this for linux as well
-      gstreamer_setEnvVar("GST_PLUGIN_SCANNER_1_0", nativeLib + "/macosx/gst-plugin-scanner");
+      GLNative.gstreamer_setEnvVar("GST_PLUGIN_SCANNER_1_0", nativeLib + "/macosx/gst-plugin-scanner");
       // XXX: DEBUG
       //gstreamer_setEnvVar("GST_DEBUG_NO_COLOR", "1");
       //gstreamer_setEnvVar("GST_DEBUG", "3");
 
       // we could also set GST_GL_API & GST_GL_PLATFORM here
 
-      if (gstreamer_init() == false) {
+      if (GLNative.gstreamer_init() == false) {
         error = true;
       }
     //}
@@ -114,7 +114,7 @@ public class GLVideo extends PImage {
       }
     }
 
-    handle = gstreamer_open(fn_or_uri, flags);
+    handle = GLNative.gstreamer_open(fn_or_uri, flags);
     if (handle == 0) {
       throw new RuntimeException("Could not load video");
     }
@@ -133,7 +133,7 @@ public class GLVideo extends PImage {
     } else if (handle == 0) {
       return false;
     } else {
-      return gstreamer_isAvailable(handle);
+      return GLNative.gstreamer_isAvailable(handle);
     }
   }
 
@@ -162,11 +162,11 @@ public class GLVideo extends PImage {
       }
     } else if (handle != 0) {
       // get current texture name
-      int texId = gstreamer_getFrame(handle);
+      int texId = GLNative.gstreamer_getFrame(handle);
       // allocate Texture if needed, or simply update the texture name
       if (texture == null) {
-        int w = gstreamer_getWidth(handle);
-        int h = gstreamer_getHeight(handle);
+        int w = GLNative.gstreamer_getWidth(handle);
+        int h = GLNative.gstreamer_getHeight(handle);
         PGraphicsOpenGL pg = (PGraphicsOpenGL)parent.g;
         Texture.Parameters params = new Texture.Parameters(ARGB, POINT, false, CLAMP);
         texture = new Texture(pg, w, h, params);
@@ -187,8 +187,8 @@ public class GLVideo extends PImage {
    */
   public void play() {
     if (handle != 0) {
-      gstreamer_setLooping(handle, false);
-      gstreamer_startPlayback(handle);
+      GLNative.gstreamer_setLooping(handle, false);
+      GLNative.gstreamer_startPlayback(handle);
     }
   }
 
@@ -200,8 +200,8 @@ public class GLVideo extends PImage {
    */
   public void loop() {
     if (handle != 0) {
-      gstreamer_setLooping(handle, true);
-      gstreamer_startPlayback(handle);
+      GLNative.gstreamer_setLooping(handle, true);
+      GLNative.gstreamer_startPlayback(handle);
     }
   }
 
@@ -214,7 +214,7 @@ public class GLVideo extends PImage {
     } else if (handle == 0) {
       return false;
     } else {
-      return gstreamer_isPlaying(handle);
+      return GLNative.gstreamer_isPlaying(handle);
     }
   }
 
@@ -223,7 +223,7 @@ public class GLVideo extends PImage {
    */
   public void noLoop() {
     if (handle != 0) {
-      gstreamer_setLooping(handle, false);
+      GLNative.gstreamer_setLooping(handle, false);
     }
   }
 
@@ -233,7 +233,7 @@ public class GLVideo extends PImage {
    */
   public void jump(float sec) {
     if (handle != 0) {
-      if (!gstreamer_seek(handle, sec)) {
+      if (!GLNative.gstreamer_seek(handle, sec)) {
         System.err.println("Cannot jump to " + sec);
       }
     }
@@ -248,7 +248,7 @@ public class GLVideo extends PImage {
    */
   public void speed(float rate) {
     if (handle != 0) {
-      if (!gstreamer_setSpeed(handle, rate)) {
+      if (!GLNative.gstreamer_setSpeed(handle, rate)) {
         System.err.println("Cannot set speed to to " + rate);
       }
     }
@@ -260,7 +260,7 @@ public class GLVideo extends PImage {
    */
   public void volume(float vol) {
     if (handle != 0) {
-      if (!gstreamer_setVolume(handle, vol)) {
+      if (!GLNative.gstreamer_setVolume(handle, vol)) {
         System.err.println("Cannot set volume to to " + vol);
       }
     }
@@ -272,7 +272,7 @@ public class GLVideo extends PImage {
    */
   public void pause() {
     if (handle != 0) {
-      gstreamer_stopPlayback(handle);
+      GLNative.gstreamer_stopPlayback(handle);
     }
   }
 
@@ -285,7 +285,7 @@ public class GLVideo extends PImage {
     } else if (handle == 0) {
       return 0.0f;
     } else {
-      return gstreamer_getDuration(handle);
+      return GLNative.gstreamer_getDuration(handle);
     }
   }
 
@@ -296,7 +296,7 @@ public class GLVideo extends PImage {
     if (handle == 0) {
       return 0.0f;
     } else {
-      return gstreamer_getPosition(handle);
+      return GLNative.gstreamer_getPosition(handle);
     }
   }
 
@@ -309,7 +309,7 @@ public class GLVideo extends PImage {
     } else if (handle == 0) {
       return 0;
     } else {
-      return gstreamer_getWidth(handle);
+      return GLNative.gstreamer_getWidth(handle);
     }
   }
 
@@ -322,7 +322,7 @@ public class GLVideo extends PImage {
     } else if (handle == 0) {
       return 0;
     } else {
-      return gstreamer_getHeight(handle);
+      return GLNative.gstreamer_getHeight(handle);
     }
   }
 
@@ -336,7 +336,7 @@ public class GLVideo extends PImage {
     } else if (handle == 0) {
       return 0.0f;
     } else {
-      return gstreamer_getFramerate(handle);
+      return GLNative.gstreamer_getFramerate(handle);
     }
   }
 
@@ -348,28 +348,8 @@ public class GLVideo extends PImage {
    */
   public void close() {
     if (handle != 0) {
-      gstreamer_close(handle);
+      GLNative.gstreamer_close(handle);
       handle = 0;
     }
   }
-
-
-  private static native void gstreamer_setEnvVar(String name, String val);
-  private static native boolean gstreamer_init();
-  private native long gstreamer_open(String fn_or_uri, int flags);
-  private native boolean gstreamer_isAvailable(long handle);
-  private native int gstreamer_getFrame(long handle);
-  private native void gstreamer_startPlayback(long handle);
-  private native boolean gstreamer_isPlaying(long handle);
-  private native void gstreamer_stopPlayback(long handle);
-  private native void gstreamer_setLooping(long handle, boolean looping);
-  private native boolean gstreamer_seek(long handle, float sec);
-  private native boolean gstreamer_setSpeed(long handle, float rate);
-  private native boolean gstreamer_setVolume(long handle, float vol);
-  private native float gstreamer_getDuration(long handle);
-  private native float gstreamer_getPosition(long handle);
-  private native int gstreamer_getWidth(long handle);
-  private native int gstreamer_getHeight(long handle);
-  private native float gstreamer_getFramerate(long handle);
-  private native void gstreamer_close(long handle);
 }
