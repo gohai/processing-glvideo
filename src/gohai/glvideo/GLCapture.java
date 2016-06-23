@@ -40,29 +40,17 @@ public class GLCapture extends PImage {
   protected PApplet parent;
   protected long handle = 0;
   protected Texture texture;
-  protected int flags = 0;
+  protected int index = 0;
   protected boolean simulate = false;
 
-  /**
-   *  Datatype for playing video files, which can be located in the sketch's
-   *  data folder, or on a remote URL. Since this library is using hardware
-   *  accelerated video playback, it is necessary to use it in combination with
-   *  the P2D or P3D renderers. Make sure the video file was prepared using a codec
-   *  that the GPU can natively decode (e.g. H.264 on the Raspberry Pi).
-   *  @param parent typically use "this"
-   *  @param fn_or_uri filename or valid URL
-   */
-  public GLCapture(PApplet parent, String fn_or_uri) {
-    this(parent, fn_or_uri, 0);
-  }
 
   /**
    *  @param flags pass GLVideo.MUTE to disable audio playback
    */
-  public GLVideo(PApplet parent, String fn_or_uri, int flags) {
+  public GLCapture(PApplet parent, int index) {
     super(0, 0, ARGB);
     this.parent = parent;
-    this.flags = flags;
+    this.index = index;
 
     //if (PApplet.platform != LINUX ||
     //    !"arm".equals(System.getProperty("os.arch"))) {
@@ -99,22 +87,7 @@ public class GLCapture extends PImage {
       throw new RuntimeException("Could not load GStreamer");
     }
 
-    if (fn_or_uri.indexOf("://") != -1) {
-      // got URI, use as is
-    } else {
-      // get absolute path for fn
-      // first, check Processing's dataPath
-      File file = new File(parent.dataPath(fn_or_uri));
-      if (file.exists() == false) {
-        // next, the current directory
-        file = new File(fn_or_uri);
-      }
-      if (file.exists()) {
-        fn_or_uri = file.getAbsolutePath();
-      }
-    }
-
-    handle = GLNative.gstreamer_open(fn_or_uri, flags);
+    handle = GLNative.gstreamer_open_capture(index);
     if (handle == 0) {
       throw new RuntimeException("Could not load video");
     }

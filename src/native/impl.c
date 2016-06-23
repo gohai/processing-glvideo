@@ -302,6 +302,65 @@ init_playbin_player (GLVIDEO_STATE_T * state, const gchar * uri)
   return TRUE;
 }
 
+static gboolean
+init_qtkitvideo_source (GLVIDEO_STATE_T * state, const gint index)
+{
+  GstPad *pad = NULL;
+  GstPad *ghostpad = NULL;
+  GstElement *vbin = gst_bin_new ("vbin");
+
+  /* insert a gl filter so that the GstGLBufferPool
+   * is managed automatically */
+  GstElement *glfilter = gst_element_factory_make ("glupload", "glfilter");
+  GstElement *capsfilter = gst_element_factory_make ("capsfilter", NULL);
+  GstElement *vsink = gst_element_factory_make ("fakesink", "vsink");
+
+  g_object_set (capsfilter, "caps",
+      gst_caps_from_string ("video/x-raw(memory:GLMemory),format=RGBA"), NULL);
+  g_object_set (vsink, "sync", TRUE, "silent", TRUE, "qos", TRUE,
+      "enable-last-sample", FALSE, "max-lateness", 20 * GST_MSECOND,
+      "signal-handoffs", TRUE, NULL);
+
+  g_signal_connect (vsink, "preroll-handoff", G_CALLBACK (preroll_cb), state);
+  g_signal_connect (vsink, "handoff", G_CALLBACK (buffers_cb), state);
+
+  gst_bin_add_many (GST_BIN (vbin), glfilter, capsfilter, vsink, NULL);
+
+  pad = gst_element_get_static_pad (glfilter, "sink");
+  ghostpad = gst_ghost_pad_new ("sink", pad);
+  gst_object_unref (pad);
+  gst_element_add_pad (vbin, ghostpad);
+
+  pad = gst_element_get_static_pad (vsink, "sink");
+  gst_pad_add_probe (pad, GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM, events_cb, state,
+      NULL);
+  gst_pad_add_probe (pad, GST_PAD_PROBE_TYPE_QUERY_DOWNSTREAM, query_cb, state,
+      NULL);
+  gst_object_unref (pad);
+
+  // this is for v4l2 devices that output YUV
+  //if (strstr (uri, "v4l2://")) {
+    GstElement *glcolorconvert = gst_element_factory_make ("glcolorconvert", NULL);
+    gst_bin_add (GST_BIN (vbin), glcolorconvert);
+    gst_element_link (glfilter, glcolorconvert);
+    gst_element_link (glcolorconvert, capsfilter);
+  //} else {
+  //  gst_element_link (glfilter, capsfilter);
+  //}
+
+  gst_element_link (capsfilter, vsink);
+
+  /* Instantiate and configure playbin */
+  state->pipeline = gst_element_factory_make ("qtkitvideosrc", "camera");
+  GstPlayFlags flags = GST_PLAY_FLAG_NATIVE_VIDEO;
+  g_object_set (state->pipeline, "device-index", index,
+      "video-sink", vbin, "flags",
+      flags, NULL);
+
+  state->vsink = gst_object_ref (vsink);
+  return TRUE;
+}
+
 static void *
 glvideo_mainloop (void * data) {
   mainloop = g_main_loop_new (NULL, FALSE);
@@ -399,6 +458,59 @@ JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open
 
     // instantiate pipeline
     if (!init_playbin_player (state, uri)) {
+      free (state);
+      return 0L;
+    }
+
+    // connect the bus handlers
+    GstBus *bus = gst_element_get_bus (state->pipeline);
+
+    gst_bus_set_sync_handler (bus, (GstBusSyncHandler) bus_sync_handler, state,
+      NULL);
+    gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
+    gst_bus_enable_sync_message_emission (bus);
+
+    g_signal_connect (G_OBJECT (bus), "message::error", (GCallback) error_cb,
+      state);
+    g_signal_connect (G_OBJECT (bus), "message::buffering",
+      (GCallback) buffering_cb, state);
+    g_signal_connect (G_OBJECT (bus), "message::eos", (GCallback) eos_cb, state);
+    gst_object_unref (bus);
+
+    // start paused
+    gst_element_set_state (state->pipeline, GST_STATE_PAUSED);
+
+    return (intptr_t) state;
+  }
+
+JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open_1capture
+  (JNIEnv * env, jclass cls, jint index) {
+    GLVIDEO_STATE_T *state = malloc (sizeof (GLVIDEO_STATE_T));
+    if (!state) {
+      return 0L;
+    }
+    memset (state, 0, sizeof (*state));
+    // state->flags = flags;
+    state->rate = 1.0f;
+
+    // setup context sharing
+#ifdef __APPLE__
+    state->gst_display = gst_gl_display_new ();
+    state->gl_context =
+      gst_gl_context_new_wrapped (GST_GL_DISPLAY (state->gst_display),
+      context, GST_GL_PLATFORM_CGL, gst_gl_context_get_current_gl_api (GST_GL_PLATFORM_CGL, NULL, NULL));
+#elif
+    state->gst_display = gst_gl_display_egl_new_with_egl_display (display);
+    state->gl_context =
+      gst_gl_context_new_wrapped (GST_GL_DISPLAY (state->gst_display),
+      (guintptr) context, GST_GL_PLATFORM_EGL, GST_GL_API_GLES2);
+#endif
+
+    // setup mutex to protect double buffering scheme
+    g_mutex_init (&state->buffer_lock);
+
+    // instantiate pipeline
+    if (!init_qtkitvideo_source (state, index)) {
       free (state);
       return 0L;
     }
