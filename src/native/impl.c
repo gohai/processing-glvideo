@@ -350,12 +350,12 @@ init_qtkitvideo_source (GLVIDEO_STATE_T * state, const gint index)
 
   gst_element_link (capsfilter, vsink);
 
-  /* Instantiate and configure playbin */
-  state->pipeline = gst_element_factory_make ("qtkitvideosrc", "camera");
-  GstPlayFlags flags = GST_PLAY_FLAG_NATIVE_VIDEO;
-  g_object_set (state->pipeline, "device-index", index,
-      "video-sink", vbin, "flags",
-      flags, NULL);
+  /* Instantiate and configure camera */
+  state->pipeline = gst_pipeline_new ("player");
+  GstElement *src = gst_element_factory_make ("qtkitvideosrc", "camera");
+  g_object_set (src, "device-index", index, NULL);
+  gst_bin_add_many (GST_BIN (state->pipeline), src, vbin, NULL);
+  gst_element_link (src, vbin);
 
   state->vsink = gst_object_ref (vsink);
   return TRUE;
