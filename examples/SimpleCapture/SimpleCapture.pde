@@ -10,13 +10,13 @@
  *  camera device as /dev/video0.
  */
 
-import gohai.glvideo.GLVideo;
-GLVideo video;
+import gohai.glvideo.*;
+GLCapture video;
 
 void setup() {
   size(320, 240, P2D);
   // this will use the first recognized camera
-  video = new GLVideo(this, "v4l2:///dev/video0");
+  video = new GLCapture(this, 0);
   video.play();
 }
 
