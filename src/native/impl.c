@@ -303,7 +303,7 @@ init_playbin_player (GLVIDEO_STATE_T * state, const gchar * uri)
 }
 
 static gboolean
-init_qtkitvideo_source (GLVIDEO_STATE_T * state, const gint index)
+init_pipeline_player (GLVIDEO_STATE_T * state, const gchar * pipeline)
 {
   GstPad *pad = NULL;
   GstPad *ghostpad = NULL;
@@ -350,10 +350,14 @@ init_qtkitvideo_source (GLVIDEO_STATE_T * state, const gint index)
 
   gst_element_link (capsfilter, vsink);
 
-  /* Instantiate and configure camera */
   state->pipeline = gst_pipeline_new ("player");
-  GstElement *src = gst_element_factory_make ("qtkitvideosrc", "camera");
-  g_object_set (src, "device-index", index, NULL);
+  GError *error = NULL;
+  GstElement *src = gst_parse_bin_from_description (pipeline, true, &error);
+  if (error) {
+    g_printerr ("Could not parse description: %s\n", error->message);
+    g_error_free (error);
+    // XXX: cleanup and return false
+  }
   gst_bin_add_many (GST_BIN (state->pipeline), src, vbin, NULL);
   gst_element_link (src, vbin);
 
@@ -483,8 +487,8 @@ JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open
     return (intptr_t) state;
   }
 
-JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open_1capture
-  (JNIEnv * env, jclass cls, jint index) {
+JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open_1pipeline
+  (JNIEnv * env, jclass cls, jstring _pipeline) {
     GLVIDEO_STATE_T *state = malloc (sizeof (GLVIDEO_STATE_T));
     if (!state) {
       return 0L;
@@ -510,10 +514,13 @@ JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open_1capture
     g_mutex_init (&state->buffer_lock);
 
     // instantiate pipeline
-    if (!init_qtkitvideo_source (state, index)) {
+    const char *pipeline = (*env)->GetStringUTFChars (env, _pipeline, JNI_FALSE);
+    if (!init_pipeline_player (state, pipeline)) {
+      (*env)->ReleaseStringUTFChars (env, _pipeline, pipeline);
       free (state);
       return 0L;
     }
+    (*env)->ReleaseStringUTFChars (env, _pipeline, pipeline);
 
     // connect the bus handlers
     GstBus *bus = gst_element_get_bus (state->pipeline);

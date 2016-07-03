@@ -33,11 +33,11 @@ JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open
 
 /*
  * Class:     gohai_glvideo_GLNative
- * Method:    gstreamer_open_capture
+ * Method:    gstreamer_open_pipeline
  * Signature: (I)J
  */
-JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open_1capture
-  (JNIEnv *, jclass, jint);
+JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open_1pipeline
+  (JNIEnv *, jclass, jstring);
 
 /*
  * Class:     gohai_glvideo_GLNative

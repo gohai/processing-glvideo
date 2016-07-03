@@ -87,7 +87,7 @@ public class GLCapture extends PImage {
       throw new RuntimeException("Could not load GStreamer");
     }
 
-    handle = GLNative.gstreamer_open_capture(index);
+    handle = GLNative.gstreamer_open_pipeline("qtkitvideosrc device-index=" + index);
     if (handle == 0) {
       throw new RuntimeException("Could not load video");
     }
