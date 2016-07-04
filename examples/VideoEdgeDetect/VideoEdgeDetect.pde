@@ -5,15 +5,15 @@
  *  OpenGL error 1285 at top endDraw(): out of memory
  */
 
-import gohai.glvideo.GLVideo;
+import gohai.glvideo.GLMovie;
 
-GLVideo video;
+GLMovie video;
 PShader edges;
 boolean enabled = true;
 
 void setup() {
   size(560, 406, P2D);
-  video = new GLVideo(this, "launch2.mp4");
+  video = new GLMovie(this, "launch2.mp4");
   video.loop();
   edges = loadShader("edges.glsl");
 }

@@ -52,24 +52,17 @@ public class GLVideo extends PImage {
    *  @param parent typically use "this"
    *  @param fn_or_uri filename or valid URL
    */
-  public GLVideo(PApplet parent, String fn_or_uri) {
-    this(parent, fn_or_uri, 0);
-  }
 
   /**
    *  @param flags pass GLVideo.MUTE to disable audio playback
    */
-  public GLVideo(PApplet parent, String fn_or_uri, int flags) {
+
+  public GLVideo(PApplet parent) {
     super(0, 0, ARGB);
     this.parent = parent;
     this.flags = flags;
 
-    //if (PApplet.platform != LINUX ||
-    //    !"arm".equals(System.getProperty("os.arch"))) {
-    //  System.err.println("The GL Video library is not supported on this platform. Instead of the actual video, your sketch will only receive stand-in frames that allow you to test the remainder of its functionality.");
-    //  simulate = true;
-    //  return;
-    //} else if (!loaded) {
+    if (!loaded) {
       System.loadLibrary("glvideo");
       loaded = true;
 
@@ -93,30 +86,10 @@ public class GLVideo extends PImage {
       if (GLNative.gstreamer_init() == false) {
         error = true;
       }
-    //}
+    }
 
     if (error) {
       throw new RuntimeException("Could not load GStreamer");
-    }
-
-    if (fn_or_uri.indexOf("://") != -1) {
-      // got URI, use as is
-    } else {
-      // get absolute path for fn
-      // first, check Processing's dataPath
-      File file = new File(parent.dataPath(fn_or_uri));
-      if (file.exists() == false) {
-        // next, the current directory
-        file = new File(fn_or_uri);
-      }
-      if (file.exists()) {
-        fn_or_uri = file.getAbsolutePath();
-      }
-    }
-
-    handle = GLNative.gstreamer_open(fn_or_uri, flags);
-    if (handle == 0) {
-      throw new RuntimeException("Could not load video");
     }
   }
 

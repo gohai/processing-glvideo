@@ -6,13 +6,13 @@
  *  no audio track
  */
 
-import gohai.glvideo.GLVideo;
-GLVideo video;
+import gohai.glvideo.*;
+GLMovie video;
 
 void setup() {
   size(1280, 720, P2D);
   noCursor();
-  video = new GLVideo(this, "/opt/vc/src/hello_pi/hello_video/test.h264");
+  video = new GLMovie(this, "/opt/vc/src/hello_pi/hello_video/test.h264");
   video.loop();
 }
 

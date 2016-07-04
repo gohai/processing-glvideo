@@ -3,14 +3,14 @@
  *  OpenGL error 1285 at top endDraw(): out of memory
  */
 
-import gohai.glvideo.GLVideo;
-GLVideo video1;
-GLVideo video2;
+import gohai.glvideo.*;
+GLMovie video1;
+GLMovie video2;
 
 void setup() {
   size(560, 203, P2D);
-  video1 = new GLVideo(this, "launch2.mp4", GLVideo.MUTE);
-  video2 = new GLVideo(this, "launch2.mp4", GLVideo.MUTE);
+  video1 = new GLMovie(this, "launch2.mp4", GLVideo.MUTE);
+  video2 = new GLMovie(this, "launch2.mp4", GLVideo.MUTE);
   video2.jump(2.0);
   video1.loop();
   video2.loop();
