@@ -41,7 +41,6 @@ public class GLVideo extends PImage {
   protected long handle = 0;
   protected Texture texture;
   protected int flags = 0;
-  protected boolean simulate = false;
 
   /**
    *  Datatype for playing video files, which can be located in the sketch's
@@ -101,9 +100,7 @@ public class GLVideo extends PImage {
    *  Returns whether there is a new frame waiting to be displayed.
    */
   public boolean available() {
-    if (simulate) {
-      return true;
-    } else if (handle == 0) {
+    if (handle == 0) {
       return false;
     } else {
       return GLNative.gstreamer_isAvailable(handle);
@@ -117,23 +114,7 @@ public class GLVideo extends PImage {
    *  screen.
    */
   public void read() {
-    if (simulate) {
-      if (width == 0) {
-        init(1280, 720, ARGB);
-        loadPixels();
-        for (int y=0; y < 720; y++) {
-          for (int x=0; x < 1280; x++) {
-            if (y < 720/2 && 1280/2 < x ||
-                720/2 < y && x < 1280/2) {
-              pixels[y * 1280 + x] = 0xFF000000;
-            } else {
-              pixels[y * 1280 + x] = 0xFFFFFFFF;
-            }
-          }
-        }
-        updatePixels();
-      }
-    } else if (handle != 0) {
+    if (handle != 0) {
       // get current texture name
       int texId = GLNative.gstreamer_getFrame(handle);
       // allocate Texture if needed, or simply update the texture name
@@ -182,9 +163,7 @@ public class GLVideo extends PImage {
    *  Returns true if the video is playing or if playback got interrupted by buffering.
    */
   public boolean playing() {
-    if (simulate) {
-      return true;
-    } else if (handle == 0) {
+    if (handle == 0) {
       return false;
     } else {
       return GLNative.gstreamer_isPlaying(handle);
@@ -253,9 +232,7 @@ public class GLVideo extends PImage {
    *  Returns the total length of the movie file in seconds.
    */
   public float duration() {
-    if (simulate) {
-      return 999.0f;
-    } else if (handle == 0) {
+    if (handle == 0) {
       return 0.0f;
     } else {
       return GLNative.gstreamer_getDuration(handle);
@@ -277,9 +254,7 @@ public class GLVideo extends PImage {
    *  Returns the native width of the movie file in pixels.
    */
   public int width() {
-    if (simulate) {
-      return 1280;
-    } else if (handle == 0) {
+    if (handle == 0) {
       return 0;
     } else {
       return GLNative.gstreamer_getWidth(handle);
@@ -290,9 +265,7 @@ public class GLVideo extends PImage {
    *  Returns the native height of the movie file in pixels.
    */
   public int height() {
-    if (simulate) {
-      return 720;
-    } else if (handle == 0) {
+    if (handle == 0) {
       return 0;
     } else {
       return GLNative.gstreamer_getHeight(handle);
@@ -304,9 +277,7 @@ public class GLVideo extends PImage {
    *  This is currently not implemented.
    */
   public float frameRate() {
-    if (simulate) {
-      return 30.0f;
-    } else if (handle == 0) {
+    if (handle == 0) {
       return 0.0f;
     } else {
       return GLNative.gstreamer_getFramerate(handle);
