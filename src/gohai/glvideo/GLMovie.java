@@ -45,7 +45,7 @@ public class GLMovie extends GLVideo {
       uri = filenameToUri(fn_or_uri);
     }
 
-    handle = GLNative.gstreamer_open(uri, flags);
+    handle = gstreamer_open(uri, flags);
     if (handle == 0) {
       throw new RuntimeException("Could not load video");
     }
@@ -63,6 +63,6 @@ public class GLMovie extends GLVideo {
       fn = file.getAbsolutePath();
     }
     // use GStreamer to encode the filename into a URI it likes
-    return GLNative.gstreamer_filenameToUri(fn);
+    return gstreamer_filenameToUri(fn);
   }
 }

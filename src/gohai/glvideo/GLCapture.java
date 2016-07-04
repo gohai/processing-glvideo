@@ -32,7 +32,7 @@ public class GLCapture extends GLVideo {
   public GLCapture(PApplet parent, int index) {
     super(parent);
 
-    handle = GLNative.gstreamer_open_pipeline("qtkitvideosrc device-index=" + index);
+    handle = gstreamer_open_pipeline("qtkitvideosrc device-index=" + index);
     if (handle == 0) {
       throw new RuntimeException("Could not open capture device");
     }

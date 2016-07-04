@@ -381,7 +381,7 @@ wait_for_state_change (GLVIDEO_STATE_T * state) {
   //GST_DEBUG_BIN_TO_DOT_FILE (GST_BIN (state->pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "playing");
 }
 
-JNIEXPORT void JNICALL Java_gohai_glvideo_GLNative_gstreamer_1setEnvVar
+JNIEXPORT void JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1setEnvVar
   (JNIEnv * env, jclass cls, jstring _name, jstring _val) {
     const char *name = (*env)->GetStringUTFChars (env, _name, JNI_FALSE);
     const char *val = (*env)->GetStringUTFChars (env, _val, JNI_FALSE);
@@ -390,7 +390,7 @@ JNIEXPORT void JNICALL Java_gohai_glvideo_GLNative_gstreamer_1setEnvVar
     (*env)->ReleaseStringUTFChars (env, _name, name);
   }
 
-JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLNative_gstreamer_1init
+JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1init
   (JNIEnv * env, jclass cls) {
     GError *error = NULL;
 
@@ -424,7 +424,7 @@ JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLNative_gstreamer_1init
     return JNI_TRUE;
   }
 
-JNIEXPORT jstring JNICALL Java_gohai_glvideo_GLNative_gstreamer_1filenameToUri
+JNIEXPORT jstring JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1filenameToUri
   (JNIEnv * env, jclass cls, jstring _fn) {
     const char *fn = (*env)->GetStringUTFChars (env, _fn, JNI_FALSE);
     gchar *uri = gst_filename_to_uri (fn, NULL);
@@ -434,7 +434,7 @@ JNIEXPORT jstring JNICALL Java_gohai_glvideo_GLNative_gstreamer_1filenameToUri
     return ret;
   }
 
-JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open
+JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1open
   (JNIEnv * env, jclass cls, jstring _uri, jint flags) {
     GLVIDEO_STATE_T *state = malloc (sizeof (GLVIDEO_STATE_T));
     if (!state) {
@@ -492,7 +492,7 @@ JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open
     return (intptr_t) state;
   }
 
-JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open_1pipeline
+JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1open_1pipeline
   (JNIEnv * env, jclass cls, jstring _pipeline) {
     GLVIDEO_STATE_T *state = malloc (sizeof (GLVIDEO_STATE_T));
     if (!state) {
@@ -548,13 +548,13 @@ JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open_1pipeline
     return (intptr_t) state;
   }
 
-JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLNative_gstreamer_1isAvailable
+JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1isAvailable
   (JNIEnv * env, jclass cls, jlong handle) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
     return (state->next_tex != 0) ? JNI_TRUE : JNI_FALSE;
   }
 
-JNIEXPORT jint JNICALL Java_gohai_glvideo_GLNative_gstreamer_1getFrame
+JNIEXPORT jint JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1getFrame
   (JNIEnv * env, jclass cls, jlong handle) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
     g_mutex_lock (&state->buffer_lock);
@@ -570,14 +570,14 @@ JNIEXPORT jint JNICALL Java_gohai_glvideo_GLNative_gstreamer_1getFrame
     return state->current_tex;
   }
 
-JNIEXPORT void JNICALL Java_gohai_glvideo_GLNative_gstreamer_1startPlayback
+JNIEXPORT void JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1startPlayback
   (JNIEnv * env, jclass cls, jlong handle) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
 
     gst_element_set_state (state->pipeline, GST_STATE_PLAYING);
   }
 
-JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLNative_gstreamer_1isPlaying
+JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1isPlaying
   (JNIEnv * env, jclass cls, jlong handle) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
     GstState s;
@@ -586,20 +586,20 @@ JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLNative_gstreamer_1isPlaying
     return (s == GST_STATE_PLAYING || (s == GST_STATE_PAUSED && state->buffering));
   }
 
-JNIEXPORT void JNICALL Java_gohai_glvideo_GLNative_gstreamer_1stopPlayback
+JNIEXPORT void JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1stopPlayback
   (JNIEnv * env, jclass cls, jlong handle) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
 
     gst_element_set_state (state->pipeline, GST_STATE_PAUSED);
   }
 
-JNIEXPORT void JNICALL Java_gohai_glvideo_GLNative_gstreamer_1setLooping
+JNIEXPORT void JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1setLooping
   (JNIEnv * env, jclass cls, jlong handle, jboolean looping) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
     state->looping = looping;
   }
 
-JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLNative_gstreamer_1seek
+JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1seek
   (JNIEnv * env, jclass cls, jlong handle, jfloat sec) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
     GstEvent *event;
@@ -613,7 +613,7 @@ JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLNative_gstreamer_1seek
     return gst_element_send_event (state->vsink, event);
   }
 
-JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLNative_gstreamer_1setSpeed
+JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1setSpeed
   (JNIEnv * env, jclass cls, jlong handle, jfloat rate) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
     GstEvent *event;
@@ -645,7 +645,7 @@ JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLNative_gstreamer_1setSpeed
     return gst_element_send_event (state->vsink, event);
   }
 
-JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLNative_gstreamer_1setVolume
+JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1setVolume
   (JNIEnv * env, jclass cls, jlong handle, jfloat vol) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
     if (vol == 0.0f) {
@@ -658,7 +658,7 @@ JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLNative_gstreamer_1setVolume
     return true;
   }
 
-JNIEXPORT jfloat JNICALL Java_gohai_glvideo_GLNative_gstreamer_1getDuration
+JNIEXPORT jfloat JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1getDuration
   (JNIEnv * env, jclass cls, jlong handle) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
     gint64 duration = 0;
@@ -669,7 +669,7 @@ JNIEXPORT jfloat JNICALL Java_gohai_glvideo_GLNative_gstreamer_1getDuration
     return duration/1000000000.0f;
   }
 
-JNIEXPORT jfloat JNICALL Java_gohai_glvideo_GLNative_gstreamer_1getPosition
+JNIEXPORT jfloat JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1getPosition
   (JNIEnv * env, jclass cls, jlong handle) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
     gint64 position = 0;
@@ -678,7 +678,7 @@ JNIEXPORT jfloat JNICALL Java_gohai_glvideo_GLNative_gstreamer_1getPosition
     return position/1000000000.0f;
   }
 
-JNIEXPORT jint JNICALL Java_gohai_glvideo_GLNative_gstreamer_1getWidth
+JNIEXPORT jint JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1getWidth
   (JNIEnv * env, jclass cls, jlong handle) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
     const GstStructure *str;
@@ -694,7 +694,7 @@ JNIEXPORT jint JNICALL Java_gohai_glvideo_GLNative_gstreamer_1getWidth
     return width;
   }
 
-JNIEXPORT jint JNICALL Java_gohai_glvideo_GLNative_gstreamer_1getHeight
+JNIEXPORT jint JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1getHeight
   (JNIEnv * env, jclass cls, jlong handle) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
     const GstStructure *str;
@@ -710,7 +710,7 @@ JNIEXPORT jint JNICALL Java_gohai_glvideo_GLNative_gstreamer_1getHeight
     return height;
   }
 
-JNIEXPORT jfloat JNICALL Java_gohai_glvideo_GLNative_gstreamer_1getFramerate
+JNIEXPORT jfloat JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1getFramerate
   (JNIEnv * env, jclass cls, jlong handle) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
     const GstStructure *str;
@@ -727,7 +727,7 @@ JNIEXPORT jfloat JNICALL Java_gohai_glvideo_GLNative_gstreamer_1getFramerate
     return (float)num/denom;
   }
 
-JNIEXPORT void JNICALL Java_gohai_glvideo_GLNative_gstreamer_1close
+JNIEXPORT void JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1close
   (JNIEnv * env, jclass cls, jlong handle) {
     GLVIDEO_STATE_T *state = (GLVIDEO_STATE_T *)(intptr_t) handle;
 
