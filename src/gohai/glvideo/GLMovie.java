@@ -30,6 +30,8 @@ import processing.core.*;
  */
 public class GLMovie extends GLVideo {
 
+  protected String uri;
+
   public GLMovie(PApplet parent, String fn_or_uri) {
     this(parent, fn_or_uri, 0);
   }
@@ -38,23 +40,29 @@ public class GLMovie extends GLVideo {
     super(parent);
 
     if (fn_or_uri.indexOf("://") != -1) {
-      // got URI, use as is
+      uri = fn_or_uri;
     } else {
-      // get absolute path for fn
-      // first, check Processing's dataPath
-      File file = new File(parent.dataPath(fn_or_uri));
-      if (file.exists() == false) {
-        // next, the current directory
-        file = new File(fn_or_uri);
-      }
-      if (file.exists()) {
-        fn_or_uri = file.getAbsolutePath();
-      }
+      uri = filenameToUri(fn_or_uri);
     }
 
-    handle = GLNative.gstreamer_open(fn_or_uri, flags);
+    handle = GLNative.gstreamer_open(uri, flags);
     if (handle == 0) {
       throw new RuntimeException("Could not load video");
     }
+  }
+
+  protected String filenameToUri(String fn) {
+    // get absolute path for fn
+    // first, check Processing's dataPath
+    File file = new File(parent.dataPath(fn));
+    if (file.exists() == false) {
+      // next, the current directory
+      file = new File(fn);
+    }
+    if (file.exists()) {
+      fn = file.getAbsolutePath();
+    }
+    // use GStreamer to encode the filename into a URI it likes
+    return GLNative.gstreamer_filenameToUri(fn);
   }
 }

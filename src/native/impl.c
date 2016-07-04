@@ -424,8 +424,18 @@ JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLNative_gstreamer_1init
     return JNI_TRUE;
   }
 
+JNIEXPORT jstring JNICALL Java_gohai_glvideo_GLNative_gstreamer_1filenameToUri
+  (JNIEnv * env, jclass cls, jstring _fn) {
+    const char *fn = (*env)->GetStringUTFChars (env, _fn, JNI_FALSE);
+    gchar *uri = gst_filename_to_uri (fn, NULL);
+    (*env)->ReleaseStringUTFChars (env, _fn, fn);
+    jstring ret = (*env)->NewStringUTF(env, uri);
+    g_free (uri);
+    return ret;
+  }
+
 JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open
-  (JNIEnv * env, jclass cls, jstring _fn_or_uri, jint flags) {
+  (JNIEnv * env, jclass cls, jstring _uri, jint flags) {
     GLVIDEO_STATE_T *state = malloc (sizeof (GLVIDEO_STATE_T));
     if (!state) {
       return 0L;
@@ -450,21 +460,16 @@ JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open
     // setup mutex to protect double buffering scheme
     g_mutex_init (&state->buffer_lock);
 
-    // make sure we have a valid uri
-    const char *fn_or_uri = (*env)->GetStringUTFChars (env, _fn_or_uri, JNI_FALSE);
-    gchar *uri;
-    if (gst_uri_is_valid (fn_or_uri)) {
-      uri = g_strdup (fn_or_uri);
-    } else {
-      uri = gst_filename_to_uri (fn_or_uri, NULL);
-    }
-    (*env)->ReleaseStringUTFChars (env, _fn_or_uri, fn_or_uri);
+    const char *uri = (*env)->GetStringUTFChars (env, _uri, JNI_FALSE);
 
     // instantiate pipeline
     if (!init_playbin_player (state, uri)) {
       free (state);
+      (*env)->ReleaseStringUTFChars (env, _uri, uri);
       return 0L;
     }
+
+    (*env)->ReleaseStringUTFChars (env, _uri, uri);
 
     // connect the bus handlers
     GstBus *bus = gst_element_get_bus (state->pipeline);

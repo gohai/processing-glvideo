@@ -25,6 +25,14 @@ JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLNative_gstreamer_1init
 
 /*
  * Class:     gohai_glvideo_GLNative
+ * Method:    gstreamer_filenameToUri
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_gohai_glvideo_GLNative_gstreamer_1filenameToUri
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     gohai_glvideo_GLNative
  * Method:    gstreamer_open
  * Signature: (Ljava/lang/String;I)J
  */
@@ -34,7 +42,7 @@ JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open
 /*
  * Class:     gohai_glvideo_GLNative
  * Method:    gstreamer_open_pipeline
- * Signature: (I)J
+ * Signature: (Ljava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLNative_gstreamer_1open_1pipeline
   (JNIEnv *, jclass, jstring);

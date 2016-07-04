@@ -32,7 +32,8 @@ import processing.opengl.*;
 public class GLNative {
   public static native void gstreamer_setEnvVar(String name, String val);
   public static native boolean gstreamer_init();
-  public static native long gstreamer_open(String fn_or_uri, int flags);
+  public static native String gstreamer_filenameToUri(String fn);
+  public static native long gstreamer_open(String uri, int flags);
   public static native long gstreamer_open_pipeline(String pipeline);
   public static native boolean gstreamer_isAvailable(long handle);
   public static native int gstreamer_getFrame(long handle);
