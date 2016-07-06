@@ -124,8 +124,9 @@ public class GLVideo extends PImage {
         PGraphicsOpenGL pg = (PGraphicsOpenGL)parent.g;
         Texture.Parameters params = new Texture.Parameters(ARGB, POINT, false, CLAMP);
         texture = new Texture(pg, w, h, params);
-        this.width = texture.width;
-        this.height = texture.height;
+//         this.width = texture.width;
+//         this.height = texture.height;
+        init(texture.width, texture.height, ARGB);        
         pg.setCache(this, texture);
       } else {
         texture.glName = texId;
@@ -296,7 +297,13 @@ public class GLVideo extends PImage {
       handle = 0;
     }
   }
-
+  
+  public void loadPixels() {
+    super.loadPixels();
+    if (texture != null) {
+      texture.get(pixels);
+    }
+  }
 
   public static native void gstreamer_setEnvVar(String name, String val);
   public static native boolean gstreamer_init();
