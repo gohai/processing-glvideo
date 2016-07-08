@@ -75,7 +75,7 @@ public class GLVideo extends PImage {
       // keep a local registry
       gstreamer_setEnvVar("GST_REGISTRY_1_0", nativeLib + "/macosx/gstreamer-1.0/registry");
       // XXX: add this for linux as well
-      gstreamer_setEnvVar("GST_PLUGIN_SCANNER_1_0", nativeLib + "/macosx/gst-plugin-scanner");
+      gstreamer_setEnvVar("GST_REGISTRY_FORK", "no");
       // XXX: DEBUG
       //gstreamer_setEnvVar("GST_DEBUG_NO_COLOR", "1");
       //gstreamer_setEnvVar("GST_DEBUG", "3");
