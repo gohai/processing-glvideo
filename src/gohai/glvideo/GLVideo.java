@@ -124,7 +124,11 @@ public class GLVideo extends PImage {
         PGraphicsOpenGL pg = (PGraphicsOpenGL)parent.g;
         Texture.Parameters params = new Texture.Parameters(ARGB, POINT, false, CLAMP);
         texture = new Texture(pg, w, h, params);
-        init(texture.width, texture.height, ARGB);        
+        // super.init(), but without allocating the pixels array
+        this.width = texture.width;
+        this.height = texture.height;
+        this.format = ARGB;
+        this.pixelDensity = 1;
         pg.setCache(this, texture);
       } else {
         texture.glName = texId;
@@ -297,6 +301,7 @@ public class GLVideo extends PImage {
   }
 
   public void loadPixels() {
+    // this allocates the pixels array if it hasn't been
     super.loadPixels();
     if (texture != null) {
       texture.get(pixels);
