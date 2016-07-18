@@ -31,8 +31,17 @@ public class GLCapture extends GLVideo {
 
   public GLCapture(PApplet parent, int index) {
     super(parent);
+    String pipeline;
 
-    handle = gstreamer_open_pipeline("qtkitvideosrc device-index=" + index);
+    if (PApplet.platform == LINUX) {
+      pipeline = "v4l2src device=/dev/video";
+    } else if (PApplet.platform == MACOSX) {
+      pipeline = "qtkitvideosrc device-index=";
+    } else {
+      throw new RuntimeException("Currently not supported on Windows");
+    }
+
+    handle = gstreamer_open_pipeline(pipeline + index);
     if (handle == 0) {
       throw new RuntimeException("Could not open capture device");
     }
