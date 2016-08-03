@@ -305,15 +305,29 @@ init_playbin_player (GLVIDEO_STATE_T * state, const gchar * uri)
 static gboolean
 init_pipeline_player (GLVIDEO_STATE_T * state, const gchar * pipeline)
 {
-  GstPad *pad = NULL;
-  GstPad *ghostpad = NULL;
-  GstElement *vbin = gst_bin_new ("vbin");
+  const char pipeline_tail[] =
+    " ! glupload name=glfilter ! glcolorconvert ! capsfilter name=filter ! fakesink name=vsink";
 
-  /* insert a gl filter so that the GstGLBufferPool
-   * is managed automatically */
-  GstElement *glfilter = gst_element_factory_make ("glupload", "glfilter");
-  GstElement *capsfilter = gst_element_factory_make ("capsfilter", NULL);
-  GstElement *vsink = gst_element_factory_make ("fakesink", "vsink");
+  // assemble final pipeline
+  char *pipeline_final = calloc (strlen (pipeline) + strlen (pipeline_tail) + 1, sizeof (char));
+  strcat (pipeline_final, pipeline);
+  strcat (pipeline_final, pipeline_tail);
+
+  GError *error = NULL;
+  state->pipeline = gst_parse_launch (pipeline, &error);
+  if (error) {
+    g_printerr ("Could not parse pipeline %s: %s\n", pipeline_final, error->message);
+    free (pipeline_final);
+    g_error_free (error);
+    return FALSE;
+  } else {
+    free (pipeline_final);
+  }
+
+  // XXX: rename to glup, filter, sink
+  GstElement *glfilter = gst_bin_get_by_name (GST_BIN (state->pipeline), "glfilter");
+  GstElement *capsfilter = gst_bin_get_by_name (GST_BIN (state->pipeline), "filter");
+  GstElement *vsink = gst_bin_get_by_name (GST_BIN (state->pipeline), "vsink");
 
   g_object_set (capsfilter, "caps",
       gst_caps_from_string ("video/x-raw(memory:GLMemory),format=RGBA"), NULL);
@@ -324,43 +338,14 @@ init_pipeline_player (GLVIDEO_STATE_T * state, const gchar * pipeline)
   g_signal_connect (vsink, "preroll-handoff", G_CALLBACK (preroll_cb), state);
   g_signal_connect (vsink, "handoff", G_CALLBACK (buffers_cb), state);
 
-  gst_bin_add_many (GST_BIN (vbin), glfilter, capsfilter, vsink, NULL);
-
-  pad = gst_element_get_static_pad (glfilter, "sink");
-  ghostpad = gst_ghost_pad_new ("sink", pad);
-  gst_object_unref (pad);
-  gst_element_add_pad (vbin, ghostpad);
-
-  pad = gst_element_get_static_pad (vsink, "sink");
+  GstPad *pad = gst_element_get_static_pad (vsink, "sink");
   gst_pad_add_probe (pad, GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM, events_cb, state,
       NULL);
   gst_pad_add_probe (pad, GST_PAD_PROBE_TYPE_QUERY_DOWNSTREAM, query_cb, state,
       NULL);
   gst_object_unref (pad);
 
-  // this is for v4l2 devices that output YUV
-  //if (strstr (uri, "v4l2://")) {
-    GstElement *glcolorconvert = gst_element_factory_make ("glcolorconvert", NULL);
-    gst_bin_add (GST_BIN (vbin), glcolorconvert);
-    gst_element_link (glfilter, glcolorconvert);
-    gst_element_link (glcolorconvert, capsfilter);
-  //} else {
-  //  gst_element_link (glfilter, capsfilter);
-  //}
-
-  gst_element_link (capsfilter, vsink);
-
-  state->pipeline = gst_pipeline_new ("player");
-  GError *error = NULL;
-  GstElement *src = gst_parse_bin_from_description (pipeline, true, &error);
-  if (error) {
-    g_printerr ("Could not parse description: %s\n", error->message);
-    g_error_free (error);
-    // XXX: cleanup and return false
-  }
-  gst_bin_add_many (GST_BIN (state->pipeline), src, vbin, NULL);
-  gst_element_link (src, vbin);
-
+  // XXX: still needed?
   state->vsink = gst_object_ref (vsink);
   return TRUE;
 }
