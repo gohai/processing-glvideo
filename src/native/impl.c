@@ -246,7 +246,7 @@ init_playbin_player (GLVIDEO_STATE_T * state, const gchar * uri)
 
   /* insert a gl filter so that the GstGLBufferPool
    * is managed automatically */
-  GstElement *glfilter = gst_element_factory_make ("glupload", "glfilter");
+  GstElement *glup = gst_element_factory_make ("glupload", "glup");
   GstElement *capsfilter = gst_element_factory_make ("capsfilter", NULL);
   GstElement *vsink = gst_element_factory_make ("fakesink", "vsink");
 
@@ -259,9 +259,9 @@ init_playbin_player (GLVIDEO_STATE_T * state, const gchar * uri)
   g_signal_connect (vsink, "preroll-handoff", G_CALLBACK (preroll_cb), state);
   g_signal_connect (vsink, "handoff", G_CALLBACK (buffers_cb), state);
 
-  gst_bin_add_many (GST_BIN (vbin), glfilter, capsfilter, vsink, NULL);
+  gst_bin_add_many (GST_BIN (vbin), glup, capsfilter, vsink, NULL);
 
-  pad = gst_element_get_static_pad (glfilter, "sink");
+  pad = gst_element_get_static_pad (glup, "sink");
   ghostpad = gst_ghost_pad_new ("sink", pad);
   gst_object_unref (pad);
   gst_element_add_pad (vbin, ghostpad);
@@ -277,10 +277,10 @@ init_playbin_player (GLVIDEO_STATE_T * state, const gchar * uri)
   //if (strstr (uri, "v4l2://")) {
     GstElement *glcolorconvert = gst_element_factory_make ("glcolorconvert", NULL);
     gst_bin_add (GST_BIN (vbin), glcolorconvert);
-    gst_element_link (glfilter, glcolorconvert);
+    gst_element_link (glup, glcolorconvert);
     gst_element_link (glcolorconvert, capsfilter);
   //} else {
-  //  gst_element_link (glfilter, capsfilter);
+  //  gst_element_link (glup, capsfilter);
   //}
 
   gst_element_link (capsfilter, vsink);
@@ -306,7 +306,7 @@ static gboolean
 init_pipeline_player (GLVIDEO_STATE_T * state, const gchar * pipeline)
 {
   const char pipeline_tail[] =
-    " ! glupload name=glfilter ! glcolorconvert ! capsfilter name=filter ! fakesink name=vsink";
+    " ! glupload name=glup ! glcolorconvert ! capsfilter name=filter ! fakesink name=vsink";
 
   // assemble final pipeline
   char *pipeline_final = calloc (strlen (pipeline) + strlen (pipeline_tail) + 1, sizeof (char));
@@ -324,8 +324,7 @@ init_pipeline_player (GLVIDEO_STATE_T * state, const gchar * pipeline)
     free (pipeline_final);
   }
 
-  // XXX: rename to glup, filter, sink
-  GstElement *glfilter = gst_bin_get_by_name (GST_BIN (state->pipeline), "glfilter");
+  GstElement *glup = gst_bin_get_by_name (GST_BIN (state->pipeline), "glup");
   GstElement *capsfilter = gst_bin_get_by_name (GST_BIN (state->pipeline), "filter");
   GstElement *vsink = gst_bin_get_by_name (GST_BIN (state->pipeline), "vsink");
 
