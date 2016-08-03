@@ -314,7 +314,7 @@ init_pipeline_player (GLVIDEO_STATE_T * state, const gchar * pipeline)
   strcat (pipeline_final, pipeline_tail);
 
   GError *error = NULL;
-  state->pipeline = gst_parse_launch (pipeline, &error);
+  state->pipeline = gst_parse_launch (pipeline_final, &error);
   if (error) {
     g_printerr ("Could not parse pipeline %s: %s\n", pipeline_final, error->message);
     free (pipeline_final);
