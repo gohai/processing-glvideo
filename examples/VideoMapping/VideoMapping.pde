@@ -23,7 +23,7 @@ void setup() {
   fullScreen(P2D);
   noCursor();
 
-  video = new GLVideo(this, "launch2.mp4");
+  video = new GLMovie(this, "launch2.mp4");
   video.loop();
   sources[0] = video;
   sources[1] = loadImage("checkerboard.png");
