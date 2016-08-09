@@ -2,7 +2,7 @@
  *  Video Mask, based on Image Mask example
  *  move the mouse to reveal the video through the dynamic mask
  *
- *  you might need to increase your GPU memory, to avoid:
+ *  On Raspberry Pi: increase your GPU memory, to avoid
  *  OpenGL error 1285 at top endDraw(): out of memory
  */
 
