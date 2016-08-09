@@ -92,6 +92,15 @@ public class GLVideo extends PImage {
     }
   }
 
+  public GLVideo(PApplet parent, String pipeline) {
+    this(parent);
+
+    handle = gstreamer_open_pipeline(pipeline);
+    if (handle == 0) {
+      throw new RuntimeException("Could not open pipeline");
+    }
+  }
+
   public void dispose() {
     close();
   }
