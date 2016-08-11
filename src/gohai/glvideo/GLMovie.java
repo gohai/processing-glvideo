@@ -32,12 +32,8 @@ public class GLMovie extends GLVideo {
 
   protected String uri;
 
-  public GLMovie(PApplet parent, String fn_or_uri) {
-    this(parent, fn_or_uri, 0);
-  }
-
   public GLMovie(PApplet parent, String fn_or_uri, int flags) {
-    super(parent);
+    super(parent, flags);
 
     if (fn_or_uri.indexOf("://") != -1) {
       uri = fn_or_uri;
@@ -49,6 +45,10 @@ public class GLMovie extends GLVideo {
     if (handle == 0) {
       throw new RuntimeException("Could not load video");
     }
+  }
+
+  public GLMovie(PApplet parent, String fn_or_uri) {
+    this(parent, fn_or_uri, 0);
   }
 
   protected String filenameToUri(String fn) {

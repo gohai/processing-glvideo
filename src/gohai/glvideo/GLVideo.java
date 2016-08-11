@@ -33,6 +33,7 @@ public class GLVideo extends PImage {
 
   /* flags */
   public static final int MUTE = 1;
+  public static final int NO_SYNC = 2;
 
   protected static boolean loaded = false;
   protected static boolean error = false;
@@ -56,7 +57,7 @@ public class GLVideo extends PImage {
    *  @param flags pass GLVideo.MUTE to disable audio playback
    */
 
-  public GLVideo(PApplet parent) {
+  public GLVideo(PApplet parent, int flags) {
     super(0, 0, ARGB);
     this.parent = parent;
     this.flags = flags;
@@ -92,13 +93,21 @@ public class GLVideo extends PImage {
     }
   }
 
-  public GLVideo(PApplet parent, String pipeline) {
-    this(parent);
+  public GLVideo(PApplet parent) {
+    this(parent, 0);
+  }
 
-    handle = gstreamer_open_pipeline(pipeline);
+  public GLVideo(PApplet parent, String pipeline, int flags) {
+    this(parent, flags);
+
+    handle = gstreamer_open_pipeline(pipeline, flags);
     if (handle == 0) {
       throw new RuntimeException("Could not open pipeline");
     }
+  }
+
+  public GLVideo(PApplet parent, String pipeline) {
+    this(parent, pipeline, 0);
   }
 
   public void dispose() {
@@ -322,7 +331,7 @@ public class GLVideo extends PImage {
   public static native boolean gstreamer_init();
   public static native String gstreamer_filenameToUri(String fn);
   public static native long gstreamer_open(String uri, int flags);
-  public static native long gstreamer_open_pipeline(String pipeline);
+  public static native long gstreamer_open_pipeline(String pipeline, int flags);
   public static native boolean gstreamer_isAvailable(long handle);
   public static native int gstreamer_getFrame(long handle);
   public static native void gstreamer_startPlayback(long handle);

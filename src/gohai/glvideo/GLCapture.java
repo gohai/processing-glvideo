@@ -29,8 +29,8 @@ import processing.core.*;
  */
 public class GLCapture extends GLVideo {
 
-  public GLCapture(PApplet parent, int index) {
-    super(parent);
+  public GLCapture(PApplet parent, int index, int flags) {
+    super(parent, flags);
     String pipeline;
 
     if (PApplet.platform == LINUX) {
@@ -41,9 +41,13 @@ public class GLCapture extends GLVideo {
       throw new RuntimeException("Currently not supported on Windows");
     }
 
-    handle = gstreamer_open_pipeline(pipeline + index);
+    handle = gstreamer_open_pipeline(pipeline + index, flags);
     if (handle == 0) {
       throw new RuntimeException("Could not open capture device");
     }
+  }
+
+  public GLCapture(PApplet parent, int index) {
+    this(parent, index, 0);
   }
 }

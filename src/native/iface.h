@@ -44,10 +44,10 @@ JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1open
 /*
  * Class:     gohai_glvideo_GLVideo
  * Method:    gstreamer_open_pipeline
- * Signature: (Ljava/lang/String;)J
+ * Signature: (Ljava/lang/String;I)J
  */
 JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1open_1pipeline
-  (JNIEnv *, jclass, jstring);
+  (JNIEnv *, jclass, jstring, jint);
 
 /*
  * Class:     gohai_glvideo_GLVideo

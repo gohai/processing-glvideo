@@ -252,9 +252,16 @@ init_playbin_player (GLVIDEO_STATE_T * state, const gchar * uri)
 
   g_object_set (capsfilter, "caps",
       gst_caps_from_string ("video/x-raw(memory:GLMemory),format=RGBA"), NULL);
-  g_object_set (vsink, "sync", TRUE, "silent", TRUE, "qos", TRUE,
+  g_object_set (vsink, "silent", TRUE, "qos", TRUE,
       "enable-last-sample", FALSE, "max-lateness", 20 * GST_MSECOND,
       "signal-handoffs", TRUE, NULL);
+
+  // handle NO_SYNC flag
+  if ((state->flags & 2)) {
+    g_object_set (vsink, "sync", FALSE, NULL);
+  } else {
+    g_object_set (vsink, "sync", TRUE, NULL);
+  }
 
   g_signal_connect (vsink, "preroll-handoff", G_CALLBACK (preroll_cb), state);
   g_signal_connect (vsink, "handoff", G_CALLBACK (buffers_cb), state);
@@ -330,9 +337,16 @@ init_pipeline_player (GLVIDEO_STATE_T * state, const gchar * pipeline)
 
   g_object_set (capsfilter, "caps",
       gst_caps_from_string ("video/x-raw(memory:GLMemory),format=RGBA"), NULL);
-  g_object_set (vsink, "sync", TRUE, "silent", TRUE, "qos", TRUE,
+  g_object_set (vsink, "silent", TRUE, "qos", TRUE,
       "enable-last-sample", FALSE, "max-lateness", 20 * GST_MSECOND,
       "signal-handoffs", TRUE, NULL);
+
+  // handle NO_SYNC flag
+  if ((state->flags & 2)) {
+    g_object_set (vsink, "sync", FALSE, NULL);
+  } else {
+    g_object_set (vsink, "sync", TRUE, NULL);
+  }
 
   g_signal_connect (vsink, "preroll-handoff", G_CALLBACK (preroll_cb), state);
   g_signal_connect (vsink, "handoff", G_CALLBACK (buffers_cb), state);
@@ -477,13 +491,13 @@ JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1open
   }
 
 JNIEXPORT jlong JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1open_1pipeline
-  (JNIEnv * env, jclass cls, jstring _pipeline) {
+  (JNIEnv * env, jclass cls, jstring _pipeline, jint flags) {
     GLVIDEO_STATE_T *state = malloc (sizeof (GLVIDEO_STATE_T));
     if (!state) {
       return 0L;
     }
     memset (state, 0, sizeof (*state));
-    // state->flags = flags;
+    state->flags = flags;
     state->rate = 1.0f;
 
     // setup context sharing
