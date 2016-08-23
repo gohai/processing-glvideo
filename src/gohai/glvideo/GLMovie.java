@@ -41,7 +41,7 @@ public class GLMovie extends GLVideo {
       uri = filenameToUri(fn_or_uri);
     }
 
-    handle = gstreamer_open(uri, flags);
+    handle = gstreamer_open_pipeline("uridecodebin uri=" + uri, flags);
     if (handle == 0) {
       throw new RuntimeException("Could not load video");
     }
