@@ -147,6 +147,8 @@ public class GLVideo extends PImage {
         this.height = texture.height;
         this.format = ARGB;
         this.pixelDensity = 1;
+        this.pixelWidth = this.width * this.pixelDensity;
+        this.pixelHeight = this.height * this.pixelDensity;         
         pg.setCache(this, texture);
       } else {
         texture.glName = texId;
