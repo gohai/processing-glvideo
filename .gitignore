@@ -1,5 +1,9 @@
 bin
 build.properties
 examples/*/data/*.mov
-library/glvideo.jar
+*.jar
+*.so
+*.o
+*.py
+*.class
 reference
