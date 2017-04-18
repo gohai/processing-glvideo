@@ -10,7 +10,7 @@
 
   <target name="compile" description="Compile sources">
     <condition property="core-built">
-      <available file="../processing/core/library/core.jar" />
+      <available file="/usr/share/processing/core/library/core.jar" />
     </condition>
     <fail unless="core-built" message="Please build the core library first and make sure it sits in ../processing/core/library/core.jar" />
 
@@ -20,14 +20,14 @@
 	   srcdir="src" destdir="bin" 
 	   encoding="UTF-8"
 	   includeAntRuntime="false"
-	   classpath="../processing/core/library/core.jar"
+     classpath="/usr/share/processing/core/library/core.jar"
 	   nowarn="true">
     </javac>
   </target>
 
   <target name="javadoc">
     <javadoc bottom="Processing Library GL Video by Gottfried Haider"
-        classpath="../processing/core/library/core.jar"
+      classpath="/usr/share/processing/core/library/core.jar"
         destdir="reference"
         verbose="false"
         doctitle="Javadocs: GL Video"
