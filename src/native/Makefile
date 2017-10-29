@@ -59,7 +59,7 @@ else ifeq ($(PLATFORM),Darwin)
 endif
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 	mkdir -p ../../library/$(TARGET_DIR)
 	cp $(TARGET) ../../library/$(TARGET_DIR)/$(TARGET_FILE)
 
