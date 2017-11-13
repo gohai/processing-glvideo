@@ -766,18 +766,16 @@ JNIEXPORT jboolean JNICALL Java_gohai_glvideo_GLVideo_gstreamer_1setSpeed
       gst_element_query_position (state->vsink, GST_FORMAT_TIME, &start);
       stop = GST_CLOCK_TIME_NONE;
     } else {
-      /*
       start = 0;
       gst_element_query_position (state->vsink, GST_FORMAT_TIME, &stop);
-      */
-      // this currently freezes the application
-      return false;
     }
+
     state->rate = rate;
     event = gst_event_new_seek (state->rate,
       GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH,
       GST_SEEK_TYPE_SET, start, GST_SEEK_TYPE_SET,
       stop);
+
     return gst_element_send_event (state->vsink, event);
   }
 
