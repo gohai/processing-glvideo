@@ -163,14 +163,22 @@ public class GLVideo extends PImage {
 
     String jar = GLVideo.class.getProtectionDomain().getCodeSource().getLocation().getPath();
     String nativeLib = jar.substring(0, jar.lastIndexOf(File.separatorChar));
-    File symlink = new File(nativeLib + "/linux-armv6hf/libGLESv2.so");
+
+    // unfortunately the directory structure differs when running as an exported application
+    File nativeLibSubdir = new File(nativeLib + "/linux-armv6hf");
+    if (nativeLibSubdir.exists()) {
+      // regular
+      nativeLib += "/linux-armv6hf";
+    }
+
+    File symlink = new File(nativeLib + "/libGLESv2.so");
 
     if (new_lib.isFile() && !symlink.isFile()) {
       // attempt to create symlinks that make it compatible
       // with earlier Raspbian releases
       try {
-        Files.createSymbolicLink(Paths.get(nativeLib + "/linux-armv6hf/libGLESv2.so"), Paths.get("/opt/vc/lib/libbrcmGLESv2.so"));
-        Files.createSymbolicLink(Paths.get(nativeLib + "/linux-armv6hf/libEGL.so"), Paths.get("/opt/vc/lib/libbrcmEGL.so"));
+        Files.createSymbolicLink(Paths.get(nativeLib + "/libGLESv2.so"), Paths.get("/opt/vc/lib/libbrcmGLESv2.so"));
+        Files.createSymbolicLink(Paths.get(nativeLib + "/libEGL.so"), Paths.get("/opt/vc/lib/libbrcmEGL.so"));
         System.out.println("GLVideo: Created compatibility symlinks");
       } catch (Exception e) {
         System.err.println("GLVideo: Error creating compatibility symlinks");
